@@ -1,5 +1,6 @@
 window.$ = window.jQuery = require('jquery');
-$("#btn-test").click(function(){
+require('electron').ipcRenderer.on('ping',function(event, message){initiateQuery()});
+function initiateQuery(){
 	var https = require('https');
 	var options = {
 	  host: 'www.googleapis.com',
@@ -23,7 +24,7 @@ $("#btn-test").click(function(){
 	//This is the data we are posting, it needs to be a string or a buffer
 	req.write("hello world!");
 	req.end();
-})
+}
 
 function getStateCity(lat, lng) {
 	var http = require('http');
@@ -62,8 +63,35 @@ function getWeather(state, city) {
 	  });
 	  response.on('end', function () {
 	    res = JSON.parse(str);
-	    console.log(res.current_observation.feelslike_string)
+	    //console.log(res.current_observation.feelslike_string)
+	    showBackground(res.current_observation.local_time_rfc822,res.current_observation.weather)
+	    showInfo(res.current_observation.display_location.full, res.current_observation.feelslike_string, res.current_observation.wind_mph)
 	  });
 	}
 	http.request(options, callback).end();
+}
+function showInfo(city, temp, wind) {
+	$("#city").html(city);
+	$("#feelslike").html(temp);
+	$("#wind").html(wind);
+}
+function showBackground(time, weather) {
+	var hour = time.split(":")[0].slice(-2);
+	var dn;
+	if(hour > 6 && hour < 18) 
+		dn = "day";
+	else	dn = "night";
+	console.log(weather);
+	console.log(hour);
+	console.log(dn);
+	if(weather.includes("Rain"))
+		$("body").css('background-image', 'url("img/rainny.jpg")');
+	else if(weather.includes("Cloud"))
+		$("body").css('background-image', 'url("img/cloudy.jpg")');
+	else{
+		if(dn == "night")
+			$("body").css('background-image', 'url("img/clearnight.jpg")');
+		else
+			$("body").css('background-image', 'url("img/sunnyday.jpg")');
+	}
 }
