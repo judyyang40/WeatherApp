@@ -42,7 +42,7 @@ function createWindow () {
   }))
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 
   mainWindow.webContents.on('did-finish-load', function(){
     mainWindow.webContents.send('ping', 'huh');
